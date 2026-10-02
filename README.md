@@ -173,6 +173,11 @@ release a team stands behind. HEY does not count such a GitHub release as a rele
 `release` refuses them with `rolling_tag_release`. `v1.2.0-dev.3` or `docs-latest` are not rolling
 tags. Passing this check is no promise that HEY will count a release: HEY's own quality gate decides.
 
+Known limitation (0.1.0): HEY and hey-project-manifest also treat a data word straight before a
+date (`data-2026-10-01`, `backup-2026.10.01`) and a date-plus-commit build stamp
+(`backend-202610010354-6802318`) as rolling. This action does not refuse those yet, so it can
+write such a `release`; HEY still does not count it as a release ship.
+
 ### The manifest reference
 
 `hey-project.json` is the project declaration format defined by
