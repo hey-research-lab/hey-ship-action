@@ -1,0 +1,100 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      matrix:
+        node: [22, 24]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+      - run: corepack enable
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm scan
+      - run: pnpm format:check
+      - run: pnpm lint
+      - run: pnpm typecheck
+      - run: pnpm test
+      - run: pnpm build
+
+  dist:
+    name: dist is up to date
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: corepack enable
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build
+      - name: Compare the committed bundle with a fresh build
+        run: |
+          if ! git diff --exit-code -- dist; then
+            echo "::error::dist/ differs from a fresh build. Run pnpm build and commit dist/."
+            exit 1
+          fi
+          if [ -n "$(git status --porcelain -- dist)" ]; then
+            echo "::error::dist/ has untracked build output. Run pnpm build and commit dist/."
+            exit 1
+          fi
+
+  self-test:
+    name: run the action
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Write evidence with the committed bundle
+        id: ship
+        uses: ./
+        with:
+          contracts: '0x0000000000000000000000000000000000000001'
+          release: v0.0.0-ci
+          artifacts: |
+            action.yml
+            dist/index.js
+          manifest-path: none
+          output-path: ci-out/hey-ship.json
+      - name: Check the outputs against the file
+        env:
+          EVIDENCE_PATH: ${{ steps.ship.outputs.evidence-path }}
+          EVIDENCE_SHA256: ${{ steps.ship.outputs.evidence-sha256 }}
+        run: |
+          test "$EVIDENCE_PATH" = "ci-out/hey-ship.json"
+          echo "$EVIDENCE_SHA256  $EVIDENCE_PATH" | sha256sum --check -
+          node -e 'const d=JSON.parse(require("fs").readFileSync(process.env.EVIDENCE_PATH,"utf8")); if(d.schema!=="hey.ship/v1"||d.chainId!==4663) process.exit(1)'
+      - name: A rolling tag is refused
+        id: rolling
+        continue-on-error: true
+        uses: ./
+        with:
+          release: latest
+          output-path: ci-out/rolling.json
+      - name: Check the refusal
+        env:
+          OUTCOME: ${{ steps.rolling.outcome }}
+        run: test "$OUTCOME" = "failure" && test ! -e ci-out/rolling.json
