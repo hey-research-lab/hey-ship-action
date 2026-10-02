@@ -1,0 +1,59 @@
+name: HEY ship evidence
+description: >-
+  Writes a hey.ship/v1 evidence file linking this commit or release to a Robinhood Chain
+  deployment. Declared evidence only: it makes no network call and never contacts HEY.
+author: HEY Research Lab
+branding:
+  icon: file-text
+  color: gray-dark
+
+inputs:
+  contracts:
+    description: >-
+      Contract addresses deployed on Robinhood Chain (4663), separated by newlines, commas or
+      spaces. 0x-prefixed; a mixed-case address must pass its EIP-55 checksum. Written lowercase.
+    required: false
+    default: ''
+  deployment-tx:
+    description: The deployment transaction hash on Robinhood Chain (0x followed by 64 hex digits).
+    required: false
+    default: ''
+  release:
+    description: >-
+      The release this evidence belongs to, such as v1.2.0. Rolling tags (latest*, nightly*,
+      *-debug, edge, canary, dev, snapshot) are refused.
+    required: false
+    default: ''
+  artifacts:
+    description: >-
+      Workspace-relative files to hash with sha256, one per line. No globs, no absolute paths, no
+      ".." segments; symbolic links are refused.
+    required: false
+    default: ''
+  manifest-path:
+    description: >-
+      Path to the project's hey-project.json. "auto" (default) looks for
+      .well-known/hey-project.json, public/.well-known/hey-project.json and
+      static/.well-known/hey-project.json; "none" skips the reference.
+    required: false
+    default: auto
+  output-path:
+    description: Workspace-relative path of the evidence file to write.
+    required: false
+    default: hey-ship.json
+  attest:
+    description: >-
+      Set true when the next step attests the file with actions/attest-build-provenance. The
+      action then fails early if the job lacks "id-token: write". It never signs anything itself.
+    required: false
+    default: 'false'
+
+outputs:
+  evidence-path:
+    description: Workspace-relative path of the evidence file written.
+  evidence-sha256:
+    description: sha256 (hex) of the exact bytes written.
+
+runs:
+  using: node24
+  main: dist/index.js
