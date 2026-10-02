@@ -92,6 +92,12 @@ export async function run(env: Env, options: RunOptions): Promise<RunResult> {
       `release ${evidence.release ?? 'not given'}, ${artifactHashes.length} artifact hash(es), ` +
       `manifest ${manifest ? manifest.path : 'not referenced'}.`,
   );
+  if (!manifest && inputs.manifestPath === 'auto') {
+    log.info(
+      'No hey-project.json found in the usual places (.well-known/, public/, static/, site/, web/, docs/ …); ' +
+        'set manifest-path to reference one.',
+    );
+  }
   log.info('This file is declared evidence. It does not publish or verify anything on HEY.');
   if (inputs.attest) {
     log.info(

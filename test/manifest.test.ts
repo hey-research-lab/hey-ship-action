@@ -90,6 +90,13 @@ describe('readManifestReference', () => {
       'public/.well-known/hey-project.json',
     );
   });
+  it('finds a manifest in a site/ folder', async () => {
+    ws.write('site/.well-known/hey-project.json', fixture('valid.json'));
+    const root = await workspaceRoot(ws.root);
+    expect((await readManifestReference(root, 'auto'))?.path).toBe(
+      'site/.well-known/hey-project.json',
+    );
+  });
   it('leaves the reference out when auto finds nothing, or when set to none', async () => {
     const root = await workspaceRoot(ws.root);
     expect(await readManifestReference(root, 'auto')).toBeUndefined();

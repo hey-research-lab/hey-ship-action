@@ -4438,7 +4438,7 @@ function isRollingTag(tag) {
 
 // src/version.ts
 var GENERATOR_NAME = "hey-ship-action";
-var GENERATOR_VERSION = "0.1.0";
+var GENERATOR_VERSION = "0.1.1";
 
 // src/schema.ts
 var SHIP_SCHEMA = "hey.ship/v1";
@@ -4771,6 +4771,13 @@ function parseArtifacts(value) {
       `at most ${MAX_ARTIFACTS} artifacts per evidence file.`
     );
   }
+  const glob = items.find((item) => /[*?]/.test(item));
+  if (glob !== void 0) {
+    throw new ShipEvidenceError(
+      "invalid_input",
+      `artifacts takes file paths, one per line; globs are not expanded: ${quote(glob)}. List each file, or expand the glob in an earlier step.`
+    );
+  }
   return items;
 }
 function parseBoolean(name, value, fallback) {
@@ -5017,7 +5024,14 @@ async function writeFileInside(root, target, what, content) {
 var MANIFEST_CANDIDATES = [
   ".well-known/hey-project.json",
   "public/.well-known/hey-project.json",
-  "static/.well-known/hey-project.json"
+  "static/.well-known/hey-project.json",
+  "site/.well-known/hey-project.json",
+  "web/.well-known/hey-project.json",
+  "docs/.well-known/hey-project.json",
+  "website/static/.well-known/hey-project.json",
+  "app/public/.well-known/hey-project.json",
+  "frontend/public/.well-known/hey-project.json",
+  "apps/web/public/.well-known/hey-project.json"
 ];
 var FORBIDDEN_KEYS = /* @__PURE__ */ new Set(["__proto__", "constructor", "prototype"]);
 function parseJsonStrict(text) {
@@ -5141,6 +5155,11 @@ async function run(env, options) {
   log.info(
     `Declared: ${evidence.contracts?.length ?? 0} contract(s), deployment tx ${evidence.deploymentTx ? "given" : "not given"}, release ${evidence.release ?? "not given"}, ${artifactHashes.length} artifact hash(es), manifest ${manifest ? manifest.path : "not referenced"}.`
   );
+  if (!manifest && inputs.manifestPath === "auto") {
+    log.info(
+      "No hey-project.json found in the usual places (.well-known/, public/, static/, site/, web/, docs/ \u2026); set manifest-path to reference one."
+    );
+  }
   log.info("This file is declared evidence. It does not publish or verify anything on HEY.");
   if (inputs.attest) {
     log.info(

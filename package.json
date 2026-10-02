@@ -1,6 +1,6 @@
 {
   "name": "hey-ship-action",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": true,
   "description": "GitHub Action that writes inspectable ship evidence linking a commit or release to a Robinhood Chain deployment, ready for GitHub artifact attestations.",
   "license": "MIT",

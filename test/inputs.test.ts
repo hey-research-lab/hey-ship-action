@@ -69,6 +69,11 @@ describe('contracts', () => {
   ])('refuses %j (%s)', (value, code) => {
     expect(codeOf(() => parseContracts(value))).toBe(code);
   });
+  it('refuses a glob with a message that says so, and keeps brackets in a path', () => {
+    expect(codeOf(() => parseArtifacts('dist/*.tgz'))).toBe('invalid_input');
+    expect(() => parseArtifacts('dist/*.tgz')).toThrow(/globs are not expanded/);
+    expect(parseArtifacts('app/[slug]/out.json')).toEqual(['app/[slug]/out.json']);
+  });
   it('caps the list', () => {
     const many = Array.from(
       { length: 101 },
@@ -128,6 +133,11 @@ describe('artifacts', () => {
       'out/with space.json',
     ]);
     expect(parseArtifacts('')).toBeUndefined();
+  });
+  it('refuses a glob with a message that says so, and keeps brackets in a path', () => {
+    expect(codeOf(() => parseArtifacts('dist/*.tgz'))).toBe('invalid_input');
+    expect(() => parseArtifacts('dist/*.tgz')).toThrow(/globs are not expanded/);
+    expect(parseArtifacts('app/[slug]/out.json')).toEqual(['app/[slug]/out.json']);
   });
   it('caps the list', () => {
     const many = Array.from({ length: 257 }, (_, i) => `f${i}`).join('\n');

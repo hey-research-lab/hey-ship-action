@@ -130,6 +130,14 @@ export function parseArtifacts(value: string): string[] | undefined {
       `at most ${MAX_ARTIFACTS} artifacts per evidence file.`,
     );
   }
+  const glob = items.find((item) => /[*?]/.test(item));
+  if (glob !== undefined) {
+    throw new ShipEvidenceError(
+      'invalid_input',
+      `artifacts takes file paths, one per line; globs are not expanded: ${quote(glob)}. ` +
+        'List each file, or expand the glob in an earlier step.',
+    );
+  }
   return items;
 }
 

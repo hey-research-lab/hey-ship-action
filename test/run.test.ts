@@ -97,7 +97,7 @@ describe('run', () => {
         version: 1,
         chainId: 4663,
       },
-      generator: { name: 'hey-ship-action', version: '0.1.0' },
+      generator: { name: 'hey-ship-action', version: '0.1.1' },
     });
     expect(ShipEvidenceSchema.safeParse(JSON.parse(written.toString('utf8'))).success).toBe(true);
 

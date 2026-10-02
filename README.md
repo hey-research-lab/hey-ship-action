@@ -27,7 +27,7 @@ option. A `hey-project.json` manifest that declares any other chain fails the st
 ## Install
 
 ```yaml
-- uses: hey-research-lab/hey-ship-action@v0.1.0
+- uses: hey-research-lab/hey-ship-action@v0.1.1
 ```
 
 Pin to the full commit SHA of a release in production (`uses: hey-research-lab/hey-ship-action@<sha> # v0.1.0`).
@@ -55,7 +55,7 @@ jobs:
         with:
           persist-credentials: false
       - id: ship
-        uses: hey-research-lab/hey-ship-action@v0.1.0
+        uses: hey-research-lab/hey-ship-action@v0.1.1
         with:
           contracts: '0x0000000000000000000000000000000000000001'
           release: ${{ github.event.release.tag_name }}
@@ -78,15 +78,15 @@ Two complete workflows are in [`examples/`](examples):
 
 ### Inputs
 
-| Input           | Default         | Meaning                                                                                                                                                                                                                                                                                                        |
-| --------------- | --------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `contracts`     | —               | Contract addresses deployed on Robinhood Chain, separated by newlines, commas or spaces (`#` starts a comment). `0x` prefix (never `0X`); a mixed-case address must pass its EIP-55 checksum; the zero and `…dead` addresses are refused; duplicates are refused. Written lowercase. At most 100.              |
-| `deployment-tx` | —               | The deployment transaction hash (`0x` + 64 hex digits). Written lowercase.                                                                                                                                                                                                                                     |
-| `release`       | —               | The release the evidence belongs to, such as `v1.2.0`: letters, digits, `. _ + - /`, up to 128 characters, no `..`. **Rolling tags are refused** (see below).                                                                                                                                                  |
-| `artifacts`     | —               | Workspace-relative files to hash, **one per line**. No globs, no absolute paths, no `.`/`..` segments, no backslashes; a symbolic link anywhere on the path is refused. At most 256, 1 GiB each.                                                                                                               |
-| `manifest-path` | `auto`          | The project's `hey-project.json`. `auto` looks for `.well-known/hey-project.json`, `public/.well-known/hey-project.json` and `static/.well-known/hey-project.json`, in that order, and leaves the reference out if none exists. `none` skips it. Any other value is a workspace-relative path that must exist. |
-| `output-path`   | `hey-ship.json` | Where to write the evidence, relative to the workspace. Missing parent directories are created; an existing link is refused.                                                                                                                                                                                   |
-| `attest`        | `false`         | Set `true` when the next step attests the file with `actions/attest-build-provenance`. The action then fails **before writing anything** if the job lacks `id-token: write`. The action never signs anything itself.                                                                                           |
+| Input           | Default         | Meaning                                                                                                                                                                                                                                                                                                                                                                                                |
+| --------------- | --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `contracts`     | —               | Contract addresses deployed on Robinhood Chain, separated by newlines, commas or spaces (`#` starts a comment). `0x` prefix (never `0X`); a mixed-case address must pass its EIP-55 checksum; the zero and `…dead` addresses are refused; duplicates are refused. Written lowercase. At most 100.                                                                                                      |
+| `deployment-tx` | —               | The deployment transaction hash (`0x` + 64 hex digits). Written lowercase.                                                                                                                                                                                                                                                                                                                             |
+| `release`       | —               | The release the evidence belongs to, such as `v1.2.0`: letters, digits, `. _ + - /`, up to 128 characters, no `..`. **Rolling tags are refused** (see below).                                                                                                                                                                                                                                          |
+| `artifacts`     | —               | Workspace-relative files to hash, **one per line**. No globs, no absolute paths, no `.`/`..` segments, no backslashes; a symbolic link anywhere on the path is refused. At most 256, 1 GiB each.                                                                                                                                                                                                       |
+| `manifest-path` | `auto`          | The project's `hey-project.json`. `auto` looks for `.well-known/hey-project.json` under the repository root, `public/`, `static/`, `site/`, `web/`, `docs/`, `website/static/`, `app/public/`, `frontend/public/` and `apps/web/public/`, in that order, and leaves the reference out (with a log line) if none exists. `none` skips it. Any other value is a workspace-relative path that must exist. |
+| `output-path`   | `hey-ship.json` | Where to write the evidence, relative to the workspace. Missing parent directories are created; an existing link is refused.                                                                                                                                                                                                                                                                           |
+| `attest`        | `false`         | Set `true` when the next step attests the file with `actions/attest-build-provenance`. The action then fails **before writing anything** if the job lacks `id-token: write`. The action never signs anything itself.                                                                                                                                                                                   |
 
 At least one of `contracts`, `deployment-tx` or `release` must be set (`nothing_to_declare`).
 

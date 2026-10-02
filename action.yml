@@ -33,8 +33,9 @@ inputs:
   manifest-path:
     description: >-
       Path to the project's hey-project.json. "auto" (default) looks for
-      .well-known/hey-project.json, public/.well-known/hey-project.json and
-      static/.well-known/hey-project.json; "none" skips the reference.
+      .well-known/hey-project.json under the repository root, public/, static/,
+      site/, web/, docs/, website/static/, app/public/, frontend/public/ and
+      apps/web/public/, and logs when it finds none; "none" skips the reference.
     required: false
     default: auto
   output-path:

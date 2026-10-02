@@ -4,6 +4,12 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project uses
 [Semantic Versioning](https://semver.org/).
 
+## 0.1.1 — 2026-10-02
+
+- `manifest-path: auto` also looks under `site/`, `web/`, `docs/`, `website/static/`, `app/public/`, `frontend/public/` and `apps/web/public/`, and logs a line when it finds no manifest.
+- `artifacts`: a glob is refused with `invalid_input` and a message that says globs are not expanded (it read as `path_not_found`). Paths with brackets still work.
+- Issue templates (bug, idea) with private security reporting and HEY corrections linked.
+
 ## 0.1.0 — 2026-10-02
 
 Initial release.

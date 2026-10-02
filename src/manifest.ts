@@ -19,6 +19,13 @@ export const MANIFEST_CANDIDATES = [
   '.well-known/hey-project.json',
   'public/.well-known/hey-project.json',
   'static/.well-known/hey-project.json',
+  'site/.well-known/hey-project.json',
+  'web/.well-known/hey-project.json',
+  'docs/.well-known/hey-project.json',
+  'website/static/.well-known/hey-project.json',
+  'app/public/.well-known/hey-project.json',
+  'frontend/public/.well-known/hey-project.json',
+  'apps/web/public/.well-known/hey-project.json',
 ] as const;
 
 const FORBIDDEN_KEYS = new Set(['__proto__', 'constructor', 'prototype']);
