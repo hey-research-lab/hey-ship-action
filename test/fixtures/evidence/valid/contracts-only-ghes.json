@@ -1,0 +1,20 @@
+{
+  "schema": "hey.ship/v1",
+  "declarationState": "DECLARED",
+  "chainId": 4663,
+  "repository": "Example-Org/Contracts.v2",
+  "repositoryUrl": "https://git.example.com/Example-Org/Contracts.v2",
+  "commit": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+  "ref": "refs/heads/main",
+  "refName": "main",
+  "refType": "branch",
+  "timestamp": "2026-10-02T12:00:00.000Z",
+  "workflowRun": {
+    "id": "7",
+    "attempt": 1,
+    "url": "https://git.example.com/Example-Org/Contracts.v2/actions/runs/7/attempts/1",
+    "event": "workflow_dispatch"
+  },
+  "contracts": ["0x00000000000000000000000000000000000000ff"],
+  "generator": { "name": "hey-ship-action", "version": "0.1.0" }
+}

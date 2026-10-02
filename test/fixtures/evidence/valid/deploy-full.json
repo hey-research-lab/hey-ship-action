@@ -1,0 +1,40 @@
+{
+  "schema": "hey.ship/v1",
+  "declarationState": "DECLARED",
+  "chainId": 4663,
+  "repository": "example-org/example-protocol",
+  "repositoryUrl": "https://github.com/example-org/example-protocol",
+  "commit": "0123456789abcdef0123456789abcdef01234567",
+  "ref": "refs/tags/v1.2.0",
+  "refName": "v1.2.0",
+  "refType": "tag",
+  "release": "v1.2.0",
+  "timestamp": "2026-10-02T12:00:00.000Z",
+  "workflowRun": {
+    "id": "1234567890",
+    "attempt": 1,
+    "url": "https://github.com/example-org/example-protocol/actions/runs/1234567890/attempts/1",
+    "event": "push",
+    "workflowRef": "example-org/example-protocol/.github/workflows/deploy.yml@refs/tags/v1.2.0",
+    "workflowSha": "0123456789abcdef0123456789abcdef01234567"
+  },
+  "contracts": [
+    "0x0000000000000000000000000000000000000001",
+    "0x0000000000000000000000000000000000000002"
+  ],
+  "deploymentTx": "0x00000000000000000000000000000000000000000000000000000000000000aa",
+  "artifactHashes": [
+    {
+      "path": "out/Token.sol/Token.json",
+      "sha256": "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad",
+      "bytes": 3
+    }
+  ],
+  "manifest": {
+    "path": ".well-known/hey-project.json",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "version": 1,
+    "chainId": 4663
+  },
+  "generator": { "name": "hey-ship-action", "version": "0.1.0" }
+}

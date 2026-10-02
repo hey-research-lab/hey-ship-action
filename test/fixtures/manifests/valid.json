@@ -1,0 +1,8 @@
+{
+  "version": 1,
+  "name": "Example Protocol",
+  "website": "https://example.org",
+  "repositories": ["https://github.com/example-org/example-protocol"],
+  "chainId": 4663,
+  "contracts": [{ "address": "0x0000000000000000000000000000000000000001", "type": "token" }]
+}
