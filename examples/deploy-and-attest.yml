@@ -1,0 +1,87 @@
+# Example: deploy contracts to Robinhood Chain on a version tag, then write and attest ship
+# evidence in a separate job.
+#
+# Copy to .github/workflows/ in your repository and replace the deploy step with your own.
+# Least privilege: the job that holds the deployer key never gets an OIDC token, and the job
+# that can request one (to attest) never sees the deployer key.
+
+name: Deploy and attest ship evidence
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: robinhood-chain # protect it with required reviewers
+    permissions:
+      contents: read
+    outputs:
+      contracts: ${{ steps.deploy.outputs.contracts }}
+      deployment-tx: ${{ steps.deploy.outputs.deployment-tx }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      # Your own deploy step. It must append two lines to $GITHUB_OUTPUT:
+      #   contracts=0x...            (one or more addresses, separated by commas)
+      #   deployment-tx=0x...        (the deployment transaction hash)
+      # Pass secrets through env:, never through ${{ }} inside run:.
+      - name: Deploy
+        id: deploy
+        env:
+          DEPLOYER_PRIVATE_KEY: ${{ secrets.DEPLOYER_PRIVATE_KEY }}
+        run: ./scripts/deploy.sh
+
+      # Keep the deploy record (here a Foundry broadcast file) so the evidence can hash it.
+      - uses: actions/upload-artifact@v4
+        with:
+          name: deploy-record
+          path: broadcast/Deploy.s.sol/4663/run-latest.json
+          if-no-files-found: error
+
+  evidence:
+    needs: deploy
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write # request the OIDC token the attestation is signed with
+      attestations: write # store the attestation on this repository
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: deploy-record
+          path: deploy-record
+
+      - name: Write ship evidence
+        id: ship
+        # Pin to a full commit SHA in production, with the version in a comment.
+        uses: hey-research-lab/hey-ship-action@v0.1.0
+        with:
+          contracts: ${{ needs.deploy.outputs.contracts }}
+          deployment-tx: ${{ needs.deploy.outputs.deployment-tx }}
+          release: ${{ github.ref_name }}
+          artifacts: |
+            deploy-record/run-latest.json
+            foundry.toml
+          attest: true
+
+      - name: Attest the evidence file
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-path: ${{ steps.ship.outputs.evidence-path }}
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: hey-ship-evidence
+          path: ${{ steps.ship.outputs.evidence-path }}
+          if-no-files-found: error

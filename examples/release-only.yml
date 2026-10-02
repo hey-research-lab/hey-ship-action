@@ -1,0 +1,63 @@
+# Example: write and attest ship evidence for a published GitHub release, with no deployment,
+# then attach the file to the release so anyone can inspect it.
+#
+# Copy to .github/workflows/ in your repository. Each job has only the permissions it needs.
+
+name: Release ship evidence
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+
+jobs:
+  evidence:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+      attestations: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Write ship evidence
+        id: ship
+        # Pin to a full commit SHA in production, with the version in a comment.
+        uses: hey-research-lab/hey-ship-action@v0.1.0
+        with:
+          # Values passed through with: are data, never shell. A rolling tag (latest, nightly-*,
+          # *-debug, edge, canary, dev, snapshot) fails this step: it is never a release.
+          release: ${{ github.event.release.tag_name }}
+          attest: true
+
+      - name: Attest the evidence file
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-path: ${{ steps.ship.outputs.evidence-path }}
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: hey-ship-evidence
+          path: ${{ steps.ship.outputs.evidence-path }}
+          if-no-files-found: error
+
+  attach:
+    needs: evidence
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # upload a release asset; this job cannot request an OIDC token
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: hey-ship-evidence
+
+      - name: Attach the evidence to the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.event.release.tag_name }}
+          REPO: ${{ github.repository }}
+        run: gh release upload "$TAG" hey-ship.json --repo "$REPO" --clobber
