@@ -4,7 +4,7 @@ import { ShipEvidenceError } from '../src/errors.js';
 import { parseServerUrl, readGitHubContext, workflowRunUrl } from '../src/github-env.js';
 import { COMMIT, githubEnv } from './helpers.js';
 
-const env = (extra: Record<string, string> = {}) => githubEnv('/home/runner/work/x/x', extra);
+const env = (extra: Record<string, string> = {}) => githubEnv('/github/workspace', extra);
 
 function codeOf(fn: () => unknown): string | undefined {
   try {
@@ -30,7 +30,7 @@ describe('readGitHubContext', () => {
       event: 'push',
       workflowRef: 'example-org/example-protocol/.github/workflows/deploy.yml@refs/tags/v1.2.0',
       workflowSha: COMMIT,
-      workspace: '/home/runner/work/x/x',
+      workspace: '/github/workspace',
     });
     expect(workflowRunUrl(ctx)).toBe(
       'https://github.com/example-org/example-protocol/actions/runs/1234567890/attempts/1',
