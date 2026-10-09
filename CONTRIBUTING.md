@@ -34,8 +34,8 @@ The action runs the committed `dist/index.js`. Any change under `src/` (or to th
 
 The chain constants (`src/chain.ts`) and address helpers (`src/evm.ts`) are the HEY Research Lab
 ecosystem's shared definitions, identical across its open-source repositories. The rolling-tag
-rule (`src/rolling-tag.ts`) restates the rule in HEY Research Lab's production contract at
-`21775391f6c0fb4494575e0b4463df535c65cb96`; HEY's own quality gate may apply further rules, and
+rule (`src/rolling-tag.ts`) restates the rule in HEY Research Lab's production contract as of
+2026-10-09; HEY's own quality gate may apply further rules, and
 this repository does not try to mirror them. When the published rule changes, update the patterns,
 the JSON Schema pattern and the test vectors together.
 
