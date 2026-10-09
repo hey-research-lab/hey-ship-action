@@ -27,7 +27,7 @@ jobs:
       - name: Write ship evidence
         id: ship
         # Pin to a full commit SHA in production, with the version in a comment.
-        uses: hey-research-lab/hey-ship-action@v0.1.1
+        uses: hey-research-lab/hey-ship-action@v0.1.2
         with:
           # Values passed through with: are data, never shell. A rolling tag (latest, nightly-*,
           # *-debug, edge, canary, dev, snapshot) fails this step: it is never a release.

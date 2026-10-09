@@ -4435,10 +4435,66 @@ function isRollingTag(tag) {
   if (!value) return false;
   return PREFIXES.some((prefix) => value.startsWith(prefix)) || SUFFIXES.some((suffix) => value.endsWith(suffix)) || EXACT.includes(value);
 }
+var DATE = "(19|20)[0-9]{2}[-_.]?(0[1-9]|1[0-2])[-_.]?(0[1-9]|[12][0-9]|3[01])";
+var DATA_WORDS = [
+  "data",
+  "dataset",
+  "datasets",
+  "snapshot",
+  "snapshots",
+  "backup",
+  "backups",
+  "dump",
+  "dumps",
+  "export",
+  "exports",
+  "db",
+  "stats",
+  "report",
+  "reports",
+  "docs",
+  "daily",
+  "auto",
+  "automated"
+];
+var DATA_DATE = new RegExp(`(^|[-_./])(${DATA_WORDS.join("|")})[-_.]?${DATE}`);
+var BUILD_STAMP = /(19|20)[0-9]{2}(0[1-9]|1[0-2])(0[1-9]|[12][0-9]|3[01])([0-2][0-9][0-5][0-9]([0-5][0-9])?)?[-_.][0-9a-f]{7,40}$/;
+var VERSION_WORDS = [
+  "v",
+  "ver",
+  "version",
+  "release",
+  "releases",
+  "rel",
+  "rc",
+  "alpha",
+  "beta",
+  "preview",
+  "pre",
+  "patch",
+  "hotfix",
+  "stable",
+  "lts",
+  "mainnet",
+  "testnet",
+  "sprint",
+  "milestone",
+  "phase",
+  "update"
+];
+var CI_RUN = /^[a-z]+([-_][a-z]+)*[-_][0-9]{2,12}[-_][0-9]{1,4}$/;
+var CI_RUN_VERSION = new RegExp(`(^|[-_])(${VERSION_WORDS.join("|")})[-_][0-9]+[-_][0-9]+$`);
+var CI_RUN_CALENDAR = /[-_](19|20)[0-9]{2}[-_](0?[1-9]|1[0-2])$/;
+var CI_BUILD = /^([a-z]+[-_])*(build|ci)[-_.]?[0-9]+([-_][0-9]+)?$/;
+function isAutomatedTag(tag) {
+  const value = tag?.trim().toLowerCase();
+  if (!value) return false;
+  return DATA_DATE.test(value) || BUILD_STAMP.test(value) || CI_RUN.test(value) && !CI_RUN_VERSION.test(value) && !CI_RUN_CALENDAR.test(value) || CI_BUILD.test(value);
+}
 
 // src/version.ts
 var GENERATOR_NAME = "hey-ship-action";
-var GENERATOR_VERSION = "0.1.1";
+var GENERATOR_VERSION = "0.1.2";
 
 // src/schema.ts
 var SHIP_SCHEMA = "hey.ship/v1";
@@ -5155,6 +5211,11 @@ async function run(env, options) {
   log.info(
     `Declared: ${evidence.contracts?.length ?? 0} contract(s), deployment tx ${evidence.deploymentTx ? "given" : "not given"}, release ${evidence.release ?? "not given"}, ${artifactHashes.length} artifact hash(es), manifest ${manifest ? manifest.path : "not referenced"}.`
   );
+  if (evidence.release && isAutomatedTag(evidence.release)) {
+    log.warning(
+      `release ${quote(evidence.release)} looks like a date-stamped or CI build-stamp tag. HEY never counts such a tag as a release ship; pass the versioned tag the build belongs to.`
+    );
+  }
   if (!manifest && inputs.manifestPath === "auto") {
     log.info(
       "No hey-project.json found in the usual places (.well-known/, public/, static/, site/, web/, docs/ \u2026); set manifest-path to reference one."

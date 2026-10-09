@@ -4,6 +4,15 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project uses
 [Semantic Versioning](https://semver.org/).
 
+## 0.1.2 — 2026-10-09
+
+- A `release` that is a date-stamped or CI build-stamp tag (`data-2026-10-01`,
+  `backend-202610010354-6802318`, `server-image-1234-1`, `build-123`, `ci-456`) is written with a
+  warning: HEY's rule as of 2026-10-09 never counts such a tag as a release ship. It is not refused,
+  so the `hey.ship/v1` schema accepts exactly what it accepted before. `isAutomatedTag` is exported
+  beside `isRollingTag`.
+- `generator.version` is `0.1.2`; README and examples use `@v0.1.2`.
+
 ## 0.1.1 — 2026-10-02
 
 - `manifest-path: auto` also looks under `site/`, `web/`, `docs/`, `website/static/`, `app/public/`, `frontend/public/` and `apps/web/public/`, and logs a line when it finds no manifest.

@@ -97,7 +97,7 @@ describe('run', () => {
         version: 1,
         chainId: 4663,
       },
-      generator: { name: 'hey-ship-action', version: '0.1.1' },
+      generator: { name: 'hey-ship-action', version: '0.1.2' },
     });
     expect(ShipEvidenceSchema.safeParse(JSON.parse(written.toString('utf8'))).success).toBe(true);
 
@@ -234,6 +234,26 @@ describe('run', () => {
     delete (env as Record<string, string | undefined>).GITHUB_OUTPUT;
     await run(env, { now: FIXED_NOW, log });
     expect(log.lines.some((l) => l.startsWith('warning: GITHUB_OUTPUT is not set'))).toBe(true);
+  });
+
+  it('warns on a date-stamped or CI build-stamp release, writes it, and stays quiet on a version', async () => {
+    for (const release of ['server-image-1234-1', 'build-123', 'data-2026-10-01']) {
+      const log = captureLogger();
+      const result = await run(envFor({ release }), { now: FIXED_NOW, log });
+      expect(result.evidence.release).toBe(release);
+      expect(
+        log.lines.some((l) => l.startsWith('warning: ') && l.includes('never counts')),
+        release,
+      ).toBe(true);
+    }
+    for (const release of ['v1.2.0', 'release-12-1', 'app-1-4']) {
+      const log = captureLogger();
+      await run(envFor({ release }), { now: FIXED_NOW, log });
+      expect(
+        log.lines.some((l) => l.includes('never counts')),
+        release,
+      ).toBe(false);
+    }
   });
 
   it('refuses pull_request_target and other chains in the manifest', async () => {

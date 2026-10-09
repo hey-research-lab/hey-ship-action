@@ -21,7 +21,8 @@ inputs:
   release:
     description: >-
       The release this evidence belongs to, such as v1.2.0. Rolling tags (latest*, nightly*,
-      *-debug, edge, canary, dev, snapshot) are refused.
+      *-debug, edge, canary, dev, snapshot) are refused; date-stamped and CI build-stamp tags
+      (data-2026-10-01, server-image-1234-1, build-123) are written with a warning.
     required: false
     default: ''
   artifacts:

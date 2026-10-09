@@ -27,10 +27,10 @@ option. A `hey-project.json` manifest that declares any other chain fails the st
 ## Install
 
 ```yaml
-- uses: hey-research-lab/hey-ship-action@v0.1.1
+- uses: hey-research-lab/hey-ship-action@v0.1.2
 ```
 
-Pin to the full commit SHA of a release in production (`uses: hey-research-lab/hey-ship-action@<sha> # v0.1.0`).
+Pin to the full commit SHA of a release in production (`uses: hey-research-lab/hey-ship-action@<sha> # v0.1.2`).
 A moving `@v1` tag will be published once the interface is declared stable; until then use the
 exact version. The action runs on `node24` from the committed `dist/index.js` and needs no token.
 
@@ -55,7 +55,7 @@ jobs:
         with:
           persist-credentials: false
       - id: ship
-        uses: hey-research-lab/hey-ship-action@v0.1.1
+        uses: hey-research-lab/hey-ship-action@v0.1.2
         with:
           contracts: '0x0000000000000000000000000000000000000001'
           release: ${{ github.event.release.tag_name }}
@@ -140,7 +140,7 @@ every fixture in [`test/fixtures/evidence`](test/fixtures/evidence).
     "version": 1,
     "chainId": 4663
   },
-  "generator": { "name": "hey-ship-action", "version": "0.1.0" }
+  "generator": { "name": "hey-ship-action", "version": "0.1.2" }
 }
 ```
 
@@ -173,10 +173,12 @@ release a team stands behind. HEY does not count such a GitHub release as a rele
 `release` refuses them with `rolling_tag_release`. `v1.2.0-dev.3` or `docs-latest` are not rolling
 tags. Passing this check is no promise that HEY will count a release: HEY's own quality gate decides.
 
-Known limitation (0.1.0): HEY and hey-project-manifest also treat a data word straight before a
-date (`data-2026-10-01`, `backup-2026.10.01`) and a date-plus-commit build stamp
-(`backend-202610010354-6802318`) as rolling. This action does not refuse those yet, so it can
-write such a `release`; HEY still does not count it as a release ship.
+HEY and hey-project-manifest also treat automated tags as rolling: a data word straight before a
+date (`data-2026-10-01`, `backup-2026.10.01`), a date-plus-commit build stamp
+(`backend-202610010354-6802318`) and, since 2026-10-08, a CI build stamp (`server-image-1234-1`,
+`docker_412_2`, `build-123`, `ci-456`; not `release-12-1`, `release-2024-10` or `app-1-4`). This
+action writes such a `release` and logs a warning (since 0.1.2), so that a `hey.ship/v1` file valid
+under 0.1.0 stays valid; HEY still does not count it as a release ship.
 
 ### The manifest reference
 

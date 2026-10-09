@@ -4,6 +4,7 @@ import { buildEvidence, serializeEvidence, sha256Hex } from './evidence.js';
 import { type Env, readGitHubContext } from './github-env.js';
 import { readInputs } from './inputs.js';
 import { readManifestReference } from './manifest.js';
+import { isAutomatedTag } from './rolling-tag.js';
 import { confine, hashFile, workspaceRoot, writeFileInside } from './paths.js';
 import { type ArtifactHash, SHIP_SCHEMA, type ShipEvidence } from './schema.js';
 
@@ -92,6 +93,12 @@ export async function run(env: Env, options: RunOptions): Promise<RunResult> {
       `release ${evidence.release ?? 'not given'}, ${artifactHashes.length} artifact hash(es), ` +
       `manifest ${manifest ? manifest.path : 'not referenced'}.`,
   );
+  if (evidence.release && isAutomatedTag(evidence.release)) {
+    log.warning(
+      `release ${quote(evidence.release)} looks like a date-stamped or CI build-stamp tag. HEY never counts ` +
+        'such a tag as a release ship; pass the versioned tag the build belongs to.',
+    );
+  }
   if (!manifest && inputs.manifestPath === 'auto') {
     log.info(
       'No hey-project.json found in the usual places (.well-known/, public/, static/, site/, web/, docs/ …); ' +
