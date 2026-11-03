@@ -4,9 +4,13 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project uses
 [Semantic Versioning](https://semver.org/).
 
-## Unreleased
+## 0.1.3 — unreleased (not yet tagged)
 
-- Development: vitest 4.1.11 / tsup 8.5.1, with esbuild held at ^0.28.1 by a pnpm override; clears
+- Security: the bundled `zod` moves from 3.x to 4.6.7 (GHSA-mrhx-c7xc-m3w5, memory exhaustion on large
+  arrays, fixed only in 4.6.6). The `hey.ship/v1` schema and every check are unchanged; `dist/index.js`
+  grows from about 160 KB to about 800 KB, the size of zod 4.
+- Development: vitest 4.1.12; CI actions pinned to commit SHAs, kept current by Dependabot.
+- Development (earlier): vitest 4.1.11 / tsup 8.5.1, with esbuild held at ^0.28.1 by a pnpm override; clears
   dev-only advisories in the test and build toolchain. No runtime change.
 
 ## 0.1.2 — 2026-10-09

@@ -133,7 +133,7 @@ export const ShipEvidenceSchema = z
       .min(1)
       .max(MAX_CONTRACTS)
       .refine(
-        unique((a) => a),
+        unique((a: string) => a),
         'contracts must be unique',
       )
       .optional(),
@@ -143,7 +143,7 @@ export const ShipEvidenceSchema = z
       .min(1)
       .max(MAX_ARTIFACTS)
       .refine(
-        unique((a) => a.path),
+        unique((a: { path: string }) => a.path),
         'artifact paths must be unique',
       )
       .optional(),
