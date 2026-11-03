@@ -27,7 +27,7 @@ option. A `hey-project.json` manifest that declares any other chain fails the st
 ## Install
 
 ```yaml
-- uses: hey-research-lab/hey-ship-action@v0.1.2
+- uses: hey-research-lab/hey-ship-action@v0.1.3
 ```
 
 Pin to the full commit SHA of a release in production (`uses: hey-research-lab/hey-ship-action@<sha> # v0.1.2`).
@@ -55,7 +55,7 @@ jobs:
         with:
           persist-credentials: false
       - id: ship
-        uses: hey-research-lab/hey-ship-action@v0.1.2
+        uses: hey-research-lab/hey-ship-action@v0.1.3
         with:
           contracts: '0x0000000000000000000000000000000000000001'
           release: ${{ github.event.release.tag_name }}
