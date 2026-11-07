@@ -34,6 +34,18 @@ Pin to the full commit SHA of a release in production (`uses: hey-research-lab/h
 A moving `@v1` tag will be published once the interface is declared stable; until then use the
 exact version. The action runs on `node24` from the committed `dist/index.js` and needs no token.
 
+For Foundry, see [`examples/foundry-deploy.yml`](examples/foundry-deploy.yml). Copy it into
+your Foundry repository, set `ROBINHOOD_RPC_URL` as an environment variable and
+`DEPLOYER_PRIVATE_KEY` as an environment secret in the protected `robinhood-chain` GitHub
+environment, and adapt the script path and deployed contract name. The RPC URL must not embed
+credentials. The Solidity script must read the key with `vm.envUint("DEPLOYER_PRIVATE_KEY")`
+and pass it to `vm.startBroadcast`; the workflow does not pass it on the command line.
+The example checks chain `4663` before broadcasting and extracts a single named deployment
+with a matching successful receipt from Foundry's `broadcast/` record. It then hashes that
+record and attests the declaration in a separate job without the deployer secret. A matching
+version tag sends real transactions and spends funds; this is not a dry-run workflow. Review
+the script and pin the toolchain/actions before enabling it. Never upload Foundry's `cache/`.
+
 ## Smallest working example
 
 ```yaml
@@ -65,7 +77,7 @@ jobs:
           subject-path: ${{ steps.ship.outputs.evidence-path }}
 ```
 
-Two complete workflows are in [`examples/`](examples):
+Other complete workflows are in [`examples/`](examples):
 
 - [`deploy-and-attest.yml`](examples/deploy-and-attest.yml) — deploy on a version tag in one job
   (which holds the deployer key and no OIDC permission), then write, hash and attest the evidence

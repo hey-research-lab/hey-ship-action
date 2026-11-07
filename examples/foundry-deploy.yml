@@ -1,0 +1,134 @@
+# Copy into your Foundry repository's .github/workflows/ directory.
+# Set vars.ROBINHOOD_RPC_URL and secrets.DEPLOYER_PRIVATE_KEY in the protected
+# robinhood-chain environment. Use an RPC URL without embedded credentials.
+# Adapt Deploy.s.sol:Deploy and MyContract to your deployment script/contract.
+# The script must use vm.startBroadcast(vm.envUint("DEPLOYER_PRIVATE_KEY")).
+# A version tag WILL broadcast transactions and spend the deployer's funds.
+
+name: Foundry deploy and attest
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: read
+
+concurrency:
+  group: foundry-robinhood-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: robinhood-chain
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    outputs:
+      contracts: ${{ steps.record.outputs.contracts }}
+      deployment-tx: ${{ steps.record.outputs.deployment-tx }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          submodules: recursive
+      - uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: stable
+      - name: Check Robinhood Chain
+        env:
+          RH_RPC_URL: ${{ vars.ROBINHOOD_RPC_URL }}
+        run: |
+          set -euo pipefail
+          : "${RH_RPC_URL:?Set ROBINHOOD_RPC_URL}"
+          test "$(cast chain-id --rpc-url "$RH_RPC_URL")" = 4663
+      - name: Broadcast the deployment
+        env:
+          RH_RPC_URL: ${{ vars.ROBINHOOD_RPC_URL }}
+          DEPLOYER_PRIVATE_KEY: ${{ secrets.DEPLOYER_PRIVATE_KEY }}
+        run: |
+          set -euo pipefail
+          : "${DEPLOYER_PRIVATE_KEY:?Set DEPLOYER_PRIVATE_KEY}"
+          # Discard a checked-in/stale record; never upload Foundry's cache/.
+          rm -f -- broadcast/Deploy.s.sol/4663/run-latest.json
+          forge script script/Deploy.s.sol:Deploy --broadcast --chain-id 4663 --rpc-url "$RH_RPC_URL"
+      - name: Read the successful deployment record
+        id: record
+        env:
+          DEPLOYED_CONTRACT: MyContract
+        run: |
+          python3 - <<'PY'
+          import json
+          import os
+          import re
+          from pathlib import Path
+
+          def require(condition, message):
+              if not condition:
+                  raise SystemExit(message)
+
+          record = json.loads(Path("broadcast/Deploy.s.sol/4663/run-latest.json").read_text())
+          require(record.get("chain") == 4663, "Broadcast record is not chain 4663")
+          require(record.get("pending") == [], "Broadcast record has pending or unknown transactions")
+          require(not record.get("reverted"), "Broadcast record has reverted transactions")
+          deployments = [
+              tx for tx in record["transactions"]
+              if tx.get("transactionType") in ("CREATE", "CREATE2")
+              and tx.get("contractName") == os.environ["DEPLOYED_CONTRACT"]
+          ]
+          require(len(deployments) == 1, "Expected exactly one deployment of DEPLOYED_CONTRACT")
+          tx = deployments[0]
+          address, tx_hash = tx.get("contractAddress"), tx.get("hash")
+          require(isinstance(address, str) and re.fullmatch(r"0x[0-9a-fA-F]{40}", address), "Invalid deployed address")
+          require(address.lower() not in ("0x" + "0" * 40, "0x" + "0" * 36 + "dead"), "Zero/burn deployed address")
+          require(isinstance(tx_hash, str) and re.fullmatch(r"0x[0-9a-fA-F]{64}", tx_hash), "Missing deployment transaction hash")
+          receipts = [r for r in record["receipts"] if r.get("transactionHash", "").lower() == tx_hash.lower()]
+          require(len(receipts) == 1 and receipts[0].get("status") == "0x1", "Deployment has no unique successful receipt")
+          receipt_address = receipts[0].get("contractAddress")
+          if tx["transactionType"] == "CREATE":
+              require(isinstance(receipt_address, str) and receipt_address.lower() == address.lower(), "Receipt address differs from deployment")
+          with open(os.environ["GITHUB_OUTPUT"], "a") as output:
+              output.write(f"contracts={address.lower()}\ndeployment-tx={tx_hash.lower()}\n")
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: deploy-record
+          path: broadcast/Deploy.s.sol/4663/run-latest.json
+          if-no-files-found: error
+
+  evidence:
+    needs: deploy
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+      attestations: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@v4
+        with:
+          name: deploy-record
+          path: deploy-record
+      - name: Write ship evidence
+        id: ship
+        # Pin actions to full release commit SHAs in production.
+        uses: hey-research-lab/hey-ship-action@v0.1.2
+        with:
+          contracts: ${{ needs.deploy.outputs.contracts }}
+          deployment-tx: ${{ needs.deploy.outputs.deployment-tx }}
+          release: ${{ github.ref_name }}
+          artifacts: |
+            deploy-record/run-latest.json
+            foundry.toml
+          attest: true
+      - uses: actions/attest-build-provenance@v2
+        with:
+          subject-path: ${{ steps.ship.outputs.evidence-path }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: hey-ship-evidence
+          path: ${{ steps.ship.outputs.evidence-path }}
+          if-no-files-found: error
