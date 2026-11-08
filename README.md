@@ -5,9 +5,9 @@ release a workflow ran on to the Robinhood Chain contracts and deployment transa
 ready to be attested with GitHub's artifact attestations.
 
 [![CI](https://github.com/hey-research-lab/hey-ship-action/actions/workflows/ci.yml/badge.svg)](https://github.com/hey-research-lab/hey-ship-action/actions/workflows/ci.yml)
-[![Licence: MIT](https://img.shields.io/badge/licence-MIT-blue.svg)](LICENSE)
-[![Action runtime: node24](https://img.shields.io/badge/action-node24-339933.svg)](action.yml)
-[![Robinhood Chain 4663](https://img.shields.io/badge/Robinhood%20Chain-4663-informational.svg)](#why-robinhood-chain-only)
+[![Licence: MIT](assets/badges/licence-mit.svg)](LICENSE)
+[![Action runtime: node24](assets/badges/action-node24.svg)](action.yml)
+[![Robinhood Chain 4663](assets/badges/robinhood-chain-4663.svg)](#why-robinhood-chain-only)
 
 ## Why it exists
 
