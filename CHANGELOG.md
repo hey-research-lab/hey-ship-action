@@ -4,7 +4,7 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project uses
 [Semantic Versioning](https://semver.org/).
 
-## 0.1.3 — unreleased (not yet tagged)
+## 0.1.3 — 2026-11-03
 
 - Security: the bundled `zod` moves from 3.x to 4.6.7 (GHSA-mrhx-c7xc-m3w5, memory exhaustion on large
   arrays, fixed only in 4.6.6). The `hey.ship/v1` schema and every check are unchanged; `dist/index.js`

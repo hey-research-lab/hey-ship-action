@@ -30,7 +30,7 @@ option. A `hey-project.json` manifest that declares any other chain fails the st
 - uses: hey-research-lab/hey-ship-action@v0.1.3
 ```
 
-Pin to the full commit SHA of a release in production (`uses: hey-research-lab/hey-ship-action@<sha> # v0.1.2`).
+Pin to the full commit SHA of a release in production (`uses: hey-research-lab/hey-ship-action@01f840b1a2e19e4d4923d721ce5af732f327f223 # v0.1.3`).
 A moving `@v1` tag will be published once the interface is declared stable; until then use the
 exact version. The action runs on `node24` from the committed `dist/index.js` and needs no token.
 
