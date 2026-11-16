@@ -268,6 +268,8 @@ See [SECURITY.md](SECURITY.md). In short: no network calls, no shell, no token n
 is validated as data and never interpolated into a command; reads and writes stay inside the
 workspace and never follow a symbolic link; `pull_request_target` is refused.
 
+HEY Research Lab also reviews other projects' code and reports what it finds privately first: [security credits](https://github.com/hey-research-lab#security-credits).
+
 ## Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md). `pnpm test`, `pnpm lint`, `pnpm typecheck`, `pnpm build`
